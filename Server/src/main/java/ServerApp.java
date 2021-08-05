@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+
 public class ServerApp {
     private final int port = 8189;
     private String DESTINATION = "C:/JavaNew/";
@@ -11,49 +12,68 @@ public class ServerApp {
         int port = this.port;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
+                int mark = Integer.SIZE / 8;
+                int nameMark = Long.SIZE / 8;
                 System.out.println("Waiting");
                 Socket socket = serverSocket.accept();
                 System.out.println("Client connected");
                 InputStream in = socket.getInputStream();
                 int commandMark = Character.SIZE / 8;
+                byte[] fileNameArr = null;
+                byte[] buffer = null;
+                long fileName = 0;
                 byte[] commandArr = new byte[commandMark];
-                in.read(commandArr, 0,commandMark);
+                in.read(commandArr, 0, commandMark);
                 char command = ByteBuffer.wrap(commandArr).getChar();
                 switch (command) {
-                    case('s') :
+                    case ('s'):
                         // Сохранение файла
                         // выделение под метку о размере файла и размере имени
-                        int mark = Integer.SIZE / 8;
-                        int nameMark = Long.SIZE / 8;
+
                         byte[] sizeArr = new byte[mark];
-                        byte[] fileNameArr = new byte[nameMark];
+                        fileNameArr = new byte[nameMark];
                         in.read(sizeArr, 0, mark);
                         int fileSize = ByteBuffer.wrap(sizeArr).getInt();
                         in.read(fileNameArr, 0, nameMark);
-                        long fileName = ByteBuffer.wrap(fileNameArr).getLong();
+                        fileName = ByteBuffer.wrap(fileNameArr).getLong();
                         FileOutputStream fw = new FileOutputStream(DESTINATION + fileName);
-                        byte[] buffer = new byte[fileSize];
+                        buffer = new byte[fileSize];
                         in.read(buffer, 0, buffer.length);
                         fw.write(buffer, 0, fileSize);
+                        System.out.println("Upload is completed");
                         in.close();
                         fw.close();
                         break;
-                    case ('r') :
-                        int nameMark2 = Long.SIZE / 8;
-                        byte[] fileNameArr2 = new byte[nameMark2];
-                        in.read(fileNameArr2, 0, nameMark2);
-                        long fileName2 = ByteBuffer.wrap(fileNameArr2).getLong();
-                        File fileToRemove = new File("C:/JavaNew/" + fileName2);
+                    case ('r'):
+                        fileNameArr = new byte[nameMark];
+                        in.read(fileNameArr, 0, nameMark);
+                        fileName = ByteBuffer.wrap(fileNameArr).getLong();
+                        File fileToRemove = new File("C:/JavaNew/" + fileName);
                         fileToRemove.delete();
                         System.out.println("File was deleted");
                         in.close();
                         break;
+                    case ('d'):
+                        System.out.println("command received");
+                        fileNameArr = new byte[nameMark];
+                        in.read(fileNameArr, 0, nameMark);
+                        fileName = ByteBuffer.wrap(fileNameArr).getLong();
+                        File fileToTransfer = new File(DESTINATION + String.valueOf(fileName));
+                        FileInputStream fi = new FileInputStream(fileToTransfer);
+                        buffer = ByteBuffer.allocate(mark + (int) fileToTransfer.length()).putInt((int) fileToTransfer.length()).array();
+                        BufferedInputStream bis = new BufferedInputStream(fi);
+                        bis.read(buffer, mark, buffer.length - mark);
+                        OutputStream out = socket.getOutputStream();
+                        out.write(buffer, 0, buffer.length);
+                        System.out.println("Download is completed");
+                        out.close();
+                        break;
+
                 }
             }
         }
 
     }
-
 
 
 }

@@ -9,12 +9,14 @@ public class DatabaseClient {
 
 
     public void connectSQL() throws SQLException, ClassNotFoundException {
-            Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection(url, user, pass);
+        Class.forName("org.postgresql.Driver");
+        connection = DriverManager.getConnection(url, user, pass);
     }
+
     public void disconnectSQL() throws SQLException {
         connection.close();
     }
+
     public void sendFileSQL(String name, int size, long serverName) throws SQLException, ClassNotFoundException {
         try {
             connectSQL();
@@ -28,9 +30,9 @@ public class DatabaseClient {
         }
 
 
-
     }
-    public void removeFileSQL (Long serverName) throws SQLException, ClassNotFoundException {
+
+    public void removeFileSQL(long serverName) throws SQLException, ClassNotFoundException {
         try {
             connectSQL();
             PreparedStatement ps = connection.prepareStatement("DELETE FROM test.nickname WHERE test.nickname.servername = ?");
@@ -42,8 +44,21 @@ public class DatabaseClient {
 
     }
 
-
-
+    public long downloadFileSQL(String fileName) throws SQLException, ClassNotFoundException {
+        long serverName = 0L;
+        try{
+            connectSQL();
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM test.nickname WHERE name = ?");
+            ps.setString(1, fileName);
+            ResultSet resultSet =  ps.executeQuery();
+            while (resultSet.next()) {
+                serverName = resultSet.getLong("servername");
+            }
+        } finally {
+            disconnectSQL();
+        }
+        return serverName;
+    }
 
 
 }
