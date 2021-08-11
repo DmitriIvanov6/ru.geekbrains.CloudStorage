@@ -19,17 +19,15 @@ public class ServerApp {
                 System.out.println("Client connected");
                 InputStream in = socket.getInputStream();
                 int commandMark = Character.SIZE / 8;
-                byte[] fileNameArr = null;
-                byte[] buffer = null;
-                long fileName = 0;
+                byte[] fileNameArr;
+                byte[] buffer;
+                long fileName;
                 byte[] commandArr = new byte[commandMark];
                 in.read(commandArr, 0, commandMark);
                 char command = ByteBuffer.wrap(commandArr).getChar();
                 switch (command) {
                     case ('s'):
                         // Сохранение файла
-                        // выделение под метку о размере файла и размере имени
-
                         byte[] sizeArr = new byte[mark];
                         fileNameArr = new byte[nameMark];
                         in.read(sizeArr, 0, mark);
@@ -45,6 +43,7 @@ public class ServerApp {
                         fw.close();
                         break;
                     case ('r'):
+                        // Удаление файла
                         fileNameArr = new byte[nameMark];
                         in.read(fileNameArr, 0, nameMark);
                         fileName = ByteBuffer.wrap(fileNameArr).getLong();
@@ -54,6 +53,7 @@ public class ServerApp {
                         in.close();
                         break;
                     case ('d'):
+                        //Скачака файла
                         System.out.println("command received");
                         fileNameArr = new byte[nameMark];
                         in.read(fileNameArr, 0, nameMark);
@@ -67,8 +67,9 @@ public class ServerApp {
                         out.write(buffer, 0, buffer.length);
                         System.out.println("Download is completed");
                         out.close();
+                        in.close();
+                        fi.close();
                         break;
-
                 }
             }
         }

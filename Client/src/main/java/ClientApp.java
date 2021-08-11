@@ -11,48 +11,11 @@ public class ClientApp {
     private final String FILE_PATH = "C:/JavaNew/testpic.jpg";
     private InputStream in = null;
     private final String DESTINATION = "C:/JavaNew/zRecieved/";
-    Socket socket = new Socket(SERVER_ADDR, SERVER_PORT);
-
-
-    public ClientApp() throws IOException {
-        //прием файлов
-
-        int mark = Integer.SIZE / 8;
-
-
-        try {
-
-            (new Thread(() -> {
-
-                while (true) {
-                    try {
-                        in = socket.getInputStream();
-                        Thread.sleep(3000);
-                        byte[] sizeArr = new byte[mark];
-                        in.read(sizeArr, 0, mark);
-                        int fileSize = ByteBuffer.wrap(sizeArr).getInt();
-                        byte[] buffer = new byte[fileSize];
-                        in.read(buffer, 0, buffer.length);
-                        FileOutputStream fw = new FileOutputStream(DESTINATION + "test.txt");
-                        fw.write(buffer, 0, fileSize);
-                        fw.close();
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            })).start();
-
-        } finally {
-
-
-        }
-
-    }
 
 
     public void sendFile() throws IOException {
         DatabaseClient dbc = new DatabaseClient();
-        try {
+        try (Socket socket = new Socket(SERVER_ADDR, SERVER_PORT)) {
             File myFile = new File(FILE_PATH);
             int fileSize = (int) myFile.length();
             String fileName = myFile.getName();
@@ -100,18 +63,41 @@ public class ClientApp {
     }
 
     public void DownloadFile(String fileName) throws IOException {
-        long serverName = 0;
         DatabaseClient dbc = new DatabaseClient();
         //захардкодил
-        serverName = 20210803234153L;
+        long serverName = 20210808002240L;
         int commandMark = Character.SIZE / 8;
         int nameMark = Long.SIZE / 8;
+        int mark = Integer.SIZE / 8;
+        boolean dFlag = true;
         byte[] buffer = ByteBuffer.allocate(commandMark + nameMark).putChar('d').putLong(serverName).array();
-        OutputStream out = socket.getOutputStream();
-        out.write(buffer, 0, buffer.length);
-        System.out.println("Download command sent");
+        try (Socket socket = new Socket(SERVER_ADDR, SERVER_PORT)) {
+            OutputStream out = socket.getOutputStream();
+            out.write(buffer, 0, buffer.length);
+            System.out.println("Download command was sent");
+            while (dFlag) {
+                try {
+                    in = socket.getInputStream();
+                    byte[] sizeArr = new byte[mark];
+                    in.read(sizeArr, 0, mark);
+                    int fileSize = ByteBuffer.wrap(sizeArr).getInt();
+                    buffer = new byte[fileSize];
+                    in.read(buffer, 0, buffer.length);
+                    FileOutputStream fw = new FileOutputStream(DESTINATION + "test.jpg");
+                    fw.write(buffer, 0, fileSize);
+                    dFlag = false;
+                    fw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("Download is completed");
+                    in.close();
+                    out.close();
+                }
+            }
 
+
+        }
 
     }
-
 }
