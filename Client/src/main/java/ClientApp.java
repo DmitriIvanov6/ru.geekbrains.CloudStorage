@@ -3,26 +3,33 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class ClientApp {
     private final String SERVER_ADDR = "localhost";
     private final int SERVER_PORT = 8189;
-    private final String FILE_PATH = "C:/JavaNew/testpic.jpg";
     private InputStream in = null;
     private final String DESTINATION = "C:/JavaNew/zRecieved/";
+    DatabaseClient dbc = new DatabaseClient();
 
 
-    public void sendFile() throws IOException {
-        DatabaseClient dbc = new DatabaseClient();
+    public void sendFile(String filePath) throws IOException {
+
         try (Socket socket = new Socket(SERVER_ADDR, SERVER_PORT)) {
-            File myFile = new File(FILE_PATH);
+            File myFile = new File(filePath);
             int fileSize = (int) myFile.length();
             String fileName = myFile.getName();
             long serverName = serverName();
+            //Проверим совпадение по имени файла, если есть, то переименуем
+            if (!dbc.checkFileName(fileName)) {
+                fileName = renameFile(fileName);
+            }
             //Заносим в бд инфу о файле
             dbc.sendFileSQL(fileName, fileSize, serverName);
-            FileInputStream fr = new FileInputStream(FILE_PATH);
+            FileInputStream fr = new FileInputStream(filePath);
             BufferedInputStream bis = new BufferedInputStream(fr);
             // выделение под метку о команде, размере файла и размере имени s - save, r - remove, d - download
             int mark = Integer.SIZE / 8;
@@ -47,7 +54,6 @@ public class ClientApp {
 
     public void removeFile() throws IOException {
         try (Socket socket = new Socket(SERVER_ADDR, SERVER_PORT)) {
-            DatabaseClient dbc = new DatabaseClient();
             int nameMark = Long.SIZE / 8;
             int commandMark = Character.SIZE / 8;
             // Тут пока захардкодим сервернейм, потом будем подтягивать из базы, но это уже с визуальным интерфейсом
@@ -63,7 +69,6 @@ public class ClientApp {
     }
 
     public void DownloadFile(String fileName) throws IOException {
-        DatabaseClient dbc = new DatabaseClient();
         //захардкодил
         long serverName = 20210808002240L;
         int commandMark = Character.SIZE / 8;
@@ -95,9 +100,17 @@ public class ClientApp {
                     out.close();
                 }
             }
-
-
         }
 
+    }
+
+    public String renameFile(String fileName) throws SQLException, ClassNotFoundException {
+        String[] name = fileName.split("\\.", 2);
+        StringBuilder sb = new StringBuilder();
+        sb.append(name[0]).append("(1)");
+        for (int i = 1; i < name.length; i++){
+            sb.append(name[i]);
+        }
+        return sb.toString();
     }
 }

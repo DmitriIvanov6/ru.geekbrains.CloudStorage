@@ -7,7 +7,7 @@ public class ClientMain {
         ClientApp clientApp = new ClientApp();
 //        clientApp.sendFile();
 //        clientApp.removeFile();
-      clientApp.DownloadFile("test.txt");
+//      clientApp.DownloadFile("test.txt");
 
 
     }

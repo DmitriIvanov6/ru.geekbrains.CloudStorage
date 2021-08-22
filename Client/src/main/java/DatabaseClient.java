@@ -1,9 +1,11 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseClient {
-    private static String url = "jdbc:postgresql://localhost:5432/CloudStorage";
-    private static String user = "postgres";
-    private static String pass = "Killthem86";
+    private final static String url = "jdbc:postgresql://localhost:5432/CloudStorage";
+    private final static String user = "postgres";
+    private final static String pass = "Killthem86";
     private Statement stmt = null;
     private Connection connection = null;
 
@@ -59,6 +61,33 @@ public class DatabaseClient {
         }
         return serverName;
     }
+
+    public ArrayList<String> getFilesSql() throws SQLException, ClassNotFoundException {
+        ArrayList<String> files = new ArrayList();
+        try{
+            connectSQL();
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery("SELECT * FROM test.nickname");
+            while (resultSet.next()) {
+                files.add(resultSet.getString("name"));
+            }
+            return files;
+
+        } finally {
+            disconnectSQL();
+        }
+    }
+
+    public boolean checkFileName(String fileName) throws SQLException, ClassNotFoundException {
+        List<String> fileList = getFilesSql();
+        for(String value : fileList) {
+            if ( value.equals(fileName)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 
 }
