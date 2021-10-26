@@ -1,5 +1,6 @@
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class Controller {
+public class ControllerMainWindow {
 
     private final ClientFileStructure cfs = new ClientFileStructure();
 
@@ -18,6 +19,8 @@ public class Controller {
     private final DatabaseClient dbClient = new DatabaseClient();
     private String tempFilePath;
     private final ClientApp clientApp = new ClientApp();
+
+    private long userId;
 
     @FXML
     private ListView<String> downloadList = new ListView<>();
@@ -34,24 +37,22 @@ public class Controller {
 
     @FXML
     public void refresh() throws SQLException, ClassNotFoundException {
-        ArrayList<String> source = dbClient.getFilesSql();
-        downloadList.getItems().removeAll(source);
-        downloadList.getItems().addAll(source);
+        ArrayList<String> source = dbClient.getFilesSql(userId);
+        if (source != null) {
+            downloadList.getItems().clear();
+            downloadList.getItems().addAll(source);
+        }
     }
 
-
     @FXML
-    public void getFileName() {
-        String fileName = downloadList.getSelectionModel().getSelectedItem();
-
+    public String getFileName() {
+        return downloadList.getSelectionModel().getSelectedItem();
     }
 
-
-
     @FXML
-    public void uploadGUI() throws IOException {
-       clientApp.sendFile(clientPath.getText());
-       btnUpload.setDisable(true);
+    public void uploadFileGUI() throws IOException {
+        clientApp.sendFile(clientPath.getText(), userId);
+        btnUpload.setDisable(true);
     }
 
     @FXML
@@ -79,20 +80,36 @@ public class Controller {
         String filePath = clientPath.getText();
         String fileName = getFileNameUpload();
         File file = new File(filePath + fileName);
-        System.out.println(file.getPath());
-        if (file.isDirectory()) {
-            btnUpload.setDisable(true);
-            fileList = clientFiles.getItems();
-            clientFiles.getItems().removeAll(fileList);
-            clientFiles.getItems().addAll(file.list());
-            clientPath.appendText(fileName + "\\");
+        if (fileName != null) {
+            if (file.isDirectory()) {
+                btnUpload.setDisable(true);
+                fileList = clientFiles.getItems();
+                clientFiles.getItems().removeAll(fileList);
+                clientFiles.getItems().addAll(cfs.checkDirectory(file));
+                clientPath.appendText(fileName + "\\");
 
+            } else {
+                btnUpload.setDisable(false);
+                tempFilePath = clientPath.getText();
+                clientPath.appendText(fileName);
+            }
         } else {
-            btnUpload.setDisable(false);
-            tempFilePath = clientPath.getText();
-            clientPath.appendText(fileName);
+            btnUpload.setDisable(true);
         }
+    }
 
+    @FXML
+    public void downloadFileGUI(ActionEvent actionEvent) throws SQLException, IOException, ClassNotFoundException {
+        clientApp.downloadFile(getFileName(), userId);
+    }
+
+    @FXML
+    public void deleteFileGUI(ActionEvent actionEvent) throws IOException {
+        clientApp.removeFile(getFileName(), userId);
+    }
+
+    public void getUserIdFromLogin(long userIdFromLogin){
+        userId = userIdFromLogin;
     }
 
 }

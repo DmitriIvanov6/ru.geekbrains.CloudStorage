@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 public class ServerApp {
     private final int port = 8189;
-    private String DESTINATION = "C:/JavaNew/";
+
 
 
     public ServerApp() throws IOException {
@@ -34,7 +34,9 @@ public class ServerApp {
                         int fileSize = ByteBuffer.wrap(sizeArr).getInt();
                         in.read(fileNameArr, 0, nameMark);
                         fileName = ByteBuffer.wrap(fileNameArr).getLong();
-                        FileOutputStream fw = new FileOutputStream(DESTINATION + fileName);
+                        File newDir = new File("C://ServerDir");
+                        newDir.mkdirs();
+                        FileOutputStream fw = new FileOutputStream(newDir.getAbsolutePath() + "\\" + fileName);
                         buffer = new byte[fileSize];
                         in.read(buffer, 0, buffer.length);
                         fw.write(buffer, 0, fileSize);
@@ -47,7 +49,7 @@ public class ServerApp {
                         fileNameArr = new byte[nameMark];
                         in.read(fileNameArr, 0, nameMark);
                         fileName = ByteBuffer.wrap(fileNameArr).getLong();
-                        File fileToRemove = new File("C:/JavaNew/" + fileName);
+                        File fileToRemove = new File("C://ServerDir/" + fileName);
                         fileToRemove.delete();
                         System.out.println("File was deleted");
                         in.close();
@@ -58,7 +60,7 @@ public class ServerApp {
                         fileNameArr = new byte[nameMark];
                         in.read(fileNameArr, 0, nameMark);
                         fileName = ByteBuffer.wrap(fileNameArr).getLong();
-                        File fileToTransfer = new File(DESTINATION + String.valueOf(fileName));
+                        File fileToTransfer = new File("C://ServerDir/" + String.valueOf(fileName));
                         FileInputStream fi = new FileInputStream(fileToTransfer);
                         buffer = ByteBuffer.allocate(mark + (int) fileToTransfer.length()).putInt((int) fileToTransfer.length()).array();
                         BufferedInputStream bis = new BufferedInputStream(fi);

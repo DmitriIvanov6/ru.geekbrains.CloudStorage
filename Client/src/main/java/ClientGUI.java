@@ -12,17 +12,9 @@ public class ClientGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("/sample.fxml"));
+        Parent loginWindow = FXMLLoader.load(getClass().getResource("/loginWindow.fxml"));
         primaryStage.setTitle("Cloud Storage");
-        primaryStage.setScene(new Scene(root, 574.0, 486));
+        primaryStage.setScene(new Scene(loginWindow, 540.0, 300.0));
         primaryStage.show();
-
-
-
-
-
-
-
-
     }
 }
