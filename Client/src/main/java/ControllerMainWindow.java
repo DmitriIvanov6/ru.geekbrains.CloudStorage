@@ -14,12 +14,10 @@ import java.util.ArrayList;
 public class ControllerMainWindow {
 
     private final ClientFileStructure cfs = new ClientFileStructure();
-
     private ObservableList<String> fileList = FXCollections.observableArrayList();
     private final DatabaseClient dbClient = new DatabaseClient();
     private String tempFilePath;
     private final ClientApp clientApp = new ClientApp();
-
     private long userId;
 
     @FXML
@@ -33,7 +31,6 @@ public class ControllerMainWindow {
 
     @FXML
     private Button btnUpload = new Button();
-
 
     @FXML
     public void refresh() throws SQLException, ClassNotFoundException {
@@ -67,7 +64,6 @@ public class ControllerMainWindow {
     @FXML
     public String getFileNameUpload() {
         return clientFiles.getSelectionModel().getSelectedItem();
-
     }
 
     @FXML
@@ -87,7 +83,6 @@ public class ControllerMainWindow {
                 clientFiles.getItems().removeAll(fileList);
                 clientFiles.getItems().addAll(cfs.checkDirectory(file));
                 clientPath.appendText(fileName + "\\");
-
             } else {
                 btnUpload.setDisable(false);
                 tempFilePath = clientPath.getText();
@@ -108,7 +103,7 @@ public class ControllerMainWindow {
         clientApp.removeFile(getFileName(), userId);
     }
 
-    public void getUserIdFromLogin(long userIdFromLogin){
+    public void getUserIdFromLogin(long userIdFromLogin) {
         userId = userIdFromLogin;
     }
 

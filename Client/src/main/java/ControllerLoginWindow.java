@@ -16,7 +16,6 @@ public class ControllerLoginWindow {
 
     private final DatabaseClient dbClient = new DatabaseClient();
 
-
     @FXML
     private Label errorMessage = new Label();
 
@@ -28,13 +27,13 @@ public class ControllerLoginWindow {
 
     @FXML
     public void ready(ActionEvent event) throws IOException, SQLException, ClassNotFoundException, NoSuchAlgorithmException {
-        if (dbClient.checkLoginAndPswrdSQL(login.getText(), PasswordEncoder.pswrdEncoding(password.getText()) )) {
+        if (dbClient.checkLoginAndPswrdSQL(login.getText(), PasswordEncoder.pswrdEncoding(password.getText()))) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainWindow.fxml"));
             Parent mainWindow = loader.load();
             ControllerMainWindow cMW = loader.getController();
             cMW.getUserIdFromLogin(dbClient.getUserId(login.getText()));
             Scene mainWindowScene = new Scene(mainWindow, 600, 500);
-            Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
             window.setScene(mainWindowScene);
             window.setTitle("Войдите или зарегистрируйтесь");
             window.show();
@@ -45,7 +44,7 @@ public class ControllerLoginWindow {
     @FXML
     public void register(ActionEvent event) throws IOException {
         Parent regWindow = FXMLLoader.load(getClass().getResource("/regWindow.fxml"));
-        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
         window.setTitle("Регистрация");
         window.setScene(new Scene(regWindow, 540.0, 300.0));
         window.show();

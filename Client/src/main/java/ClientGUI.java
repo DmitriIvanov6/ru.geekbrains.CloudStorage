@@ -11,7 +11,7 @@ public class ClientGUI extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent loginWindow = FXMLLoader.load(getClass().getResource("/loginWindow.fxml"));
         primaryStage.setTitle("Cloud Storage");
         primaryStage.setScene(new Scene(loginWindow, 540.0, 300.0));

@@ -7,7 +7,6 @@ public class ClientFileStructure {
 
     private File path;
 
-
     public String onStartPath() {
         path = new File("C://");
         return path.getAbsolutePath();
@@ -35,6 +34,5 @@ public class ClientFileStructure {
         }
         return null;
     }
-
 
 }
