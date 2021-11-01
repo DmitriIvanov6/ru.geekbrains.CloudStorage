@@ -1,0 +1,6 @@
+
+CREATE SCHEMA storage;
+
+CREATE TABLE storage.users (id serial, login varchar(100), password varchar(200), PRIMARY KEY (id));
+
+CREATE TABLE storage.files (id serial, name varchar(100), size bigint, servername bigint, user_id bigint REFERENCES storage.users (id));
